@@ -276,7 +276,12 @@ RUN_USER="${SUDO_USER:-$(id -un)}"
 
 step_preflight() {
   info "Log file: $LOG_FILE"
-  [[ "$(uname -s)" == "Linux" ]] || fail "This installer supports Linux (including WSL2) only."
+  case "$(uname -s)" in
+    Linux) ;;
+    MINGW*|MSYS*|CYGWIN*)
+      fail "You're in Git Bash/MSYS on Windows ($(uname -s)). This script needs real Linux: run it inside a WSL2 distro (e.g. Ubuntu) or on a Linux machine." ;;
+    *) fail "This installer supports Linux (including WSL2) only. Detected: $(uname -s)." ;;
+  esac
   [[ "$(uname -m)" == "x86_64" ]] || warn "CPU architecture is $(uname -m). PyTorch wheels may not exist for it."
 
   {
